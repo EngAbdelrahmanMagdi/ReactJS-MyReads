@@ -5,12 +5,9 @@ npx create-react-app my_reads_app
 # To start the application run this command
 npm start
 
-
 # To install react routes package run this command 
 npm i react-router-dom
 
-# To install axios to fetch api run this command 
-npm i axios
 
 # To install react icons run this command
 npm i react-icons --save
@@ -18,12 +15,7 @@ npm i react-icons --save
 # To install Bootstrap and react Bootstrap run this command 
 npm i react-bootstrap bootstrap
 
-
-
 # To add alert 
 npm i --save sweetalert2 sweetalert2-react-content
 
-
-# To add lottie-player
-npm i react-lottie-player
 
