@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Book from "../components/books";
+import Book from "./books";
 import { getAll } from "../BooksAPI";
-import { Link } from "react-router-dom";
-import {FaSearchengin } from "react-icons/fa";
+import { FaSearchengin } from "react-icons/fa";
+import { Search } from "./search";
 
 export function Main() {
   const [bookState, setBookState] = useState([]);
   const [shelfState, setShelfState] = useState("");
-  const [allOrShelfBooks, setAllOrShelfBooks] = useState("true");
+  const [allOrShelfBooks, setAllOrShelfBooks] = useState(true);
+  const [searchNotShelf, setSearchNotShelf] = useState(false);
 
   const [searchColor, setSearchColor] = useState("black");
 
@@ -26,12 +27,18 @@ export function Main() {
 
   const onChangeShelf = (bookID, shelf) => {
     let newBookState;
-    newBookState = bookState.map((bookByBook) => {
-      if (bookByBook.id === bookID) {
-        bookByBook.shelf = shelf;
-      }
-      return bookByBook;
-    });
+    if (shelf === "none") {
+      newBookState = bookState.filter((book) => {
+        return book.id !== bookID;
+      });
+    } else {
+      newBookState = bookState.map((bookByBook) => {
+        if (bookByBook.id === bookID) {
+          bookByBook.shelf = shelf;
+        }
+        return bookByBook;
+      });
+    }
     setBookState(newBookState);
   };
 
@@ -42,6 +49,7 @@ export function Main() {
           <button
             type="button"
             onClick={() => {
+              setSearchNotShelf(false);
               setAllOrShelfBooks(true);
             }}
             className="btn btn-outline-secondary"
@@ -51,6 +59,7 @@ export function Main() {
           <button
             type="button"
             onClick={() => {
+              setSearchNotShelf(false);
               showShelfBook("currentlyReading");
             }}
             className="btn btn-outline-primary"
@@ -60,6 +69,7 @@ export function Main() {
           <button
             type="button"
             onClick={() => {
+              setSearchNotShelf(false);
               showShelfBook("read");
             }}
             className="btn btn-outline-danger"
@@ -69,6 +79,7 @@ export function Main() {
           <button
             type="button"
             onClick={() => {
+              setSearchNotShelf(false);
               showShelfBook("wantToRead");
             }}
             className="btn btn-outline-success"
@@ -80,12 +91,13 @@ export function Main() {
             onMouseEnter={() => setSearchColor("white")}
             className="btn btn-outline-dark books"
             onMouseLeave={() => setSearchColor("black")}
+            onClick={() => {
+              setSearchNotShelf(true);
+            }}
           >
-            <Link to="/search" title="search">
-              <FaSearchengin
-                style={{ width: "30px", height: "30px", color: searchColor }}
-              />
-            </Link>
+            <FaSearchengin
+              style={{ width: "30px", height: "30px", color: searchColor }}
+            />
           </button>
         </div>
         {bookState.length === 0 && (
@@ -95,8 +107,21 @@ export function Main() {
         )}
 
         <div className="row d-flex mt-3 justify-content-center text-center">
-          {allOrShelfBooks
-            ? bookState.map((books) => {
+          {searchNotShelf ? (
+            <Search books={bookState} />
+          ) : allOrShelfBooks ? (
+            bookState.map((books) => {
+              return (
+                <Book
+                  key={books.id}
+                  books={books}
+                  onChangeShelf={onChangeShelf}
+                />
+              );
+            })
+          ) : (
+            bookState.map((books) => {
+              if (books.shelf === shelfState) {
                 return (
                   <Book
                     key={books.id}
@@ -104,19 +129,10 @@ export function Main() {
                     onChangeShelf={onChangeShelf}
                   />
                 );
-              })
-            : bookState.map((books) => {
-                if (books.shelf === shelfState) {
-                  return (
-                    <Book
-                      key={books.id}
-                      books={books}
-                      onChangeShelf={onChangeShelf}
-                    />
-                  );
-                }
-                return "";
-              })}
+              }
+              return "";
+            })
+          )}
         </div>
       </div>
     </>

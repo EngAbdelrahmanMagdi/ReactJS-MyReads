@@ -1,38 +1,57 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Book from "../components/books";
+import Book from "./books";
 import { search } from "../BooksAPI";
-import { FaBackward, FaSearchengin } from "react-icons/fa";
 import notFound from "../assets/notFound.png";
 
-export function Search() {
+export function Search({ books }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [stillLoading, setStillLoading] = useState(false);
-  const [books, setBooks] = useState([]);
+  const [newBooks, setBooks] = useState([]);
 
   const onChangeShelf = (bookID, shelf) => {
     let newBookState;
-    newBookState = books.map((bookByBook) => {
-      if (bookByBook.id === bookID) {
-        bookByBook.shelf = shelf;
-      }
-      return bookByBook;
-    });
+    if (shelf === "none") {
+      newBookState = newBooks.filter((book) => {
+        return book.id !== bookID;
+      });
+    } else {
+      newBookState = newBooks.map((bookByBook) => {
+        if (bookByBook.id === bookID) {
+          bookByBook.shelf = shelf;
+        }
+        return bookByBook;
+      });
+    }
     setBooks(newBookState);
   };
 
-  const searchByKeyword = async () => {
-    setStillLoading(true);
-    const result = await search(searchKeyword, 10);
-    console.log(searchKeyword);
-    console.log(result);
-    console.log(stillLoading);
-    setBooks(result);
-    setStillLoading(false);
-  };
-
-  const handelSearch = (event) => {
+  const searchByKeyword = async (event) => {
     setSearchKeyword(event.target.value);
+    setStillLoading(true);
+    console.log("books props are");
+    console.log(books);
+    const result = await search(searchKeyword, 10);
+    let arr = [];
+    console.log("result");
+    console.log(result);
+    for (let i = 0; i < result?.length; i++) {
+      let flag = false;
+      for (let j = 0; j < books.length; j++) {
+        if (result[i].title === books[j].title) {
+          arr.push(books[j]);
+          flag = true;
+          break;
+        }
+      }
+      if (flag === false) {
+        arr.push(result[i]);
+      }
+    }
+    console.log("arrray are");
+    console.log(arr);
+
+    setBooks(arr);
+    setStillLoading(false);
   };
 
   return (
@@ -42,31 +61,12 @@ export function Search() {
           <div className="input-group">
             <div className="form-outline mx-5" style={{ width: "17rem" }}>
               <input
-                onChange={(e) => handelSearch(e)}
+                onChange={(e) => searchByKeyword(e)}
                 type="search"
                 className="form-control"
                 placeholder="Enter Book title, ISBN OR Author"
               />
             </div>
-            <button
-              className="btn btn-primary ms-3"
-              onClick={() => {
-                searchByKeyword();
-              }}
-            >
-              <FaSearchengin
-                style={{ width: "2rem", height: "2rem", color: "white" }}
-              />
-            </button>
-            <Link
-              to={"/"}
-              className="btn btn-danger ms-3 "
-              style={{ width: "5rem" }}
-            >
-              <FaBackward
-                style={{ width: "2rem", height: "2rem", color: "white" }}
-              />
-            </Link>
           </div>
         </div>
 
@@ -77,16 +77,20 @@ export function Search() {
         )}
 
         <div className="row d-flex mt-5 text-center justify-content-center">
-          {!stillLoading && books.length > 0 ? (
-            books.map((books) => {
-              return (
-                <Book
-                  key={books.id}
-                  books={books}
-                  onChangeShelf={onChangeShelf}
-                />
-              );
-            })
+          {!stillLoading ? (
+            Array.isArray(newBooks) ? (
+              newBooks?.map((newBook, index) => {
+                return (
+                  <Book
+                    key={index}
+                    books={newBook}
+                    onChangeShelf={onChangeShelf}
+                  />
+                );
+              })
+            ) : (
+              []
+            )
           ) : (
             <div className="container align-items-center text-center pb-2">
               {!stillLoading && searchKeyword !== "" && (

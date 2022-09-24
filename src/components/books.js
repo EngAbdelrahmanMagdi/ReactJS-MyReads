@@ -1,12 +1,13 @@
 import React from "react";
 import { useState } from "react";
-import { update } from "./../BooksAPI";
+import { update} from "../BooksAPI";
 import { Link } from "react-router-dom";
 import { bookPreview, success, failed } from "./sweetAlert";
 import defaultImage from "../assets/defaultImage.png";
 import { BiShowAlt } from "react-icons/bi";
 
 export default function Book({ books, onChangeShelf }) {
+
   const [shelfState, setShelfState] = useState(books.shelf);
 
   const updateBook = async (event) => {
@@ -18,10 +19,8 @@ export default function Book({ books, onChangeShelf }) {
       .catch((error) => {
         failed();
       });
-
     onChangeShelf(books.id, event.target.value);
   };
-  console.log(shelfState);
 
   return (
     <div
@@ -52,7 +51,7 @@ export default function Book({ books, onChangeShelf }) {
           <span>Title </span> :{books.title}
         </p>
         <p>
-          <span>Author </span> :  {(books.authors)? books.authors[0]:'Unknown'}
+          <span>Author </span> :  {(books.authors)? books.authors:'Unknown'}
         </p>
         <p>
           <span>Rate </span> :{" "}
@@ -78,6 +77,7 @@ export default function Book({ books, onChangeShelf }) {
         <div className="change-shelf">
           <select
             id="change"
+            defaultValue={shelfState}
             onChange={(event) => {
               updateBook(event);
             }}

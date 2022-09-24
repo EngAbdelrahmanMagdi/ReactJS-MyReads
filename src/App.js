@@ -1,4 +1,4 @@
-import {NotFound} from './components/notFound.jsx'
+import {NotFound} from './components/notFound.js'
 import {Main} from './components/main'
 import {Search} from './components/search'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
